@@ -36,6 +36,34 @@ template ConvolutionLayer<float>* GetConvolutionLayer(const string& name,
 template ConvolutionLayer<double>* GetConvolutionLayer(const string& name,
     const LayerParameter& param);
 
+// Get blur layer according to engine.
+template <typename Dtype>
+BlurLayer<Dtype>* GetBlurLayer(const string& name,
+    const LayerParameter& param) {
+  BlurParameter_Engine engine = param.blurfilter_param().engine();
+  if (engine == BlurParameter_Engine_DEFAULT) {
+    engine = BlurParameter_Engine_CAFFE;
+#ifdef USE_CUDNN
+    engine = BlurParameter_Engine_CUDNN;
+#endif
+  }
+  if (engine == BlurParameter_Engine_CAFFE) {
+    return new BlurLayer<Dtype>(param);
+#ifdef USE_CUDNN
+  } else if (engine == BlurParameter_Engine_CUDNN) {
+    return new CuDNNBlurLayer<Dtype>(param);
+#endif
+  } else {
+    LOG(FATAL) << "Layer " << name << " has unknown engine.";
+  }
+}
+
+template BlurLayer<float>* GetBlurLayer(const string& name,
+    const LayerParameter& param);
+template BlurLayer<double>* GetBlurLayer(const string& name,
+    const LayerParameter& param);
+
+
 // Get pooling layer according to engine.
 template <typename Dtype>
 PoolingLayer<Dtype>* GetPoolingLayer(const string& name,
@@ -193,6 +221,8 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return new ContrastiveLossLayer<Dtype>(param);
   case LayerParameter_LayerType_CONVOLUTION:
     return GetConvolutionLayer<Dtype>(name, param);
+  case LayerParameter_LayerType_BLURFILTER:
+    return GetBlurLayer<Dtype>(name, param);
   case LayerParameter_LayerType_DATA:
     return new DataLayer<Dtype>(param);
   case LayerParameter_LayerType_DROPOUT:

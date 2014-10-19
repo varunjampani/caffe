@@ -28,13 +28,13 @@ layers {
   include: { phase: TEST }
 }
 layers {
-  name: "blur1"
-  type: BLURFILTER
+  name: "conv1"
+  type: CONVOLUTION
   bottom: "data"
-  top: "blur1"
+  top: "conv1"
   blobs_lr: 1
   blobs_lr: 2
-  blurfilter_param {
+  convolution_param {
     num_output: 32
     pad: 2
     kernel_size: 5
@@ -51,7 +51,7 @@ layers {
 layers {
   name: "pool1"
   type: POOLING
-  bottom: "blur1"
+  bottom: "conv1"
   top: "pool1"
   pooling_param {
     pool: MAX
