@@ -146,7 +146,36 @@ Forward CPU function
 template <typename Dtype>
 void BlurLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       vector<Blob<Dtype>*>* top) {
+
+  Permutohedral<double>* test_class = new Permutohedral<double>();
+ 
+  double feature = 1.5; 
+  test_class->init(&feature,1,1);
+
   for (int i = 0; i < bottom.size(); ++i) {
+		  int num = bottom[i]->num();
+		  const Dtype* bottom_data = bottom[i]->cpu_data();
+		  int index = 0;
+		  double* features  = new double[num*channels_*height_*width*];
+	    for (int n=0;n < bottom[i]->num();++n)
+	    {
+		    for(int c = 0; c < channels_; ++c)
+		    {
+			    for (int h = 0;h<height_;++h)
+			    {
+				    for (int w = 0 ; w < width_ ;w++)
+				    {
+					    features[index] = bottom_data[index];
+				    }
+			    }
+		    }
+
+	     
+	    }
+	  }
+
+
+
     const Dtype* bottom_data = bottom[i]->cpu_data();
     Dtype* top_data = (*top)[i]->mutable_cpu_data();
     Dtype* col_data = col_buffer_.mutable_cpu_data();
